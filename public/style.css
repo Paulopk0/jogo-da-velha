@@ -1,0 +1,147 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Keyframes ─────────────────────────────────────────────── */
+
+@keyframes pop-in {
+  0%   { transform: scale(0.3); opacity: 0; }
+  65%  { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 4px 1px currentColor; }
+  50%       { box-shadow: 0 0 14px 4px currentColor; }
+}
+
+@keyframes winner-glow {
+  0%, 100% { box-shadow: 0 0 6px 1px #f5c51870; }
+  50%       { box-shadow: 0 0 20px 5px #f5c518bb; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Layout ──────────────────────────────────────────────────── */
+
+body {
+  font-family: sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 1.5rem;
+  background: #1a1a2e;
+  color: #eee;
+  padding: 1rem;
+}
+
+h1 {
+  font-size: clamp(1.5rem, 6vw, 2rem);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+/* ── Status ──────────────────────────────────────────────────── */
+
+#status {
+  font-size: 1.1rem;
+  padding: 0.6rem 1.4rem;
+  border-radius: 6px;
+  background: #16213e;
+  border: 2px solid #444;
+  text-align: center;
+  min-width: 200px;
+  transition: border-color 0.3s, color 0.3s, box-shadow 0.3s;
+}
+
+#status.waiting  { border-color: #ff9800; color: #ff9800; }
+#status.playing  { border-color: #4caf50; color: #4caf50; }
+#status.gameover { border-color: #2196f3; color: #2196f3; }
+#status.error    { border-color: #f44336; color: #f44336; }
+
+/* Turn-aware color: overrides the default playing green */
+#status.playing.turn-x { border-color: #e94560; color: #e94560; }
+#status.playing.turn-o { border-color: #4fc3f7; color: #4fc3f7; }
+
+/* Pulse glow only when it is this player's turn */
+#status.my-turn { animation: pulse-glow 1.4s ease-in-out infinite; }
+
+/* ── Buttons ─────────────────────────────────────────────────── */
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+  transition: background 0.15s, opacity 0.15s;
+}
+button:disabled { opacity: 0.55; cursor: not-allowed; }
+
+#find-btn,
+#play-again-btn {
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  background: #e94560;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+#find-btn:hover:not(:disabled),
+#play-again-btn:hover { background: #c73652; }
+
+/* Spinner appended via ::after while searching */
+#find-btn.searching::after {
+  content: '';
+  display: block;
+  width: 0.9em;
+  height: 0.9em;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+/* ── Board ───────────────────────────────────────────────────── */
+
+#board {
+  --cell: clamp(80px, 26vmin, 100px);
+  --gap:  clamp(5px, 1.5vmin, 8px);
+  display: grid;
+  grid-template-columns: repeat(3, var(--cell));
+  grid-template-rows:    repeat(3, var(--cell));
+  gap: var(--gap);
+}
+
+/* ── Cells ───────────────────────────────────────────────────── */
+
+.cell {
+  width: var(--cell);
+  height: var(--cell);
+  background: #16213e;
+  border: 2px solid #0f3460;
+  border-radius: 8px;
+  font-size: clamp(2rem, 7vmin, 2.8rem);
+  font-weight: bold;
+  color: #eee;
+  transition: background 0.15s;
+}
+
+.cell:hover:not(:disabled) { background: #0f3460; }
+.cell:disabled              { cursor: default; opacity: 1; }
+.cell.x                     { color: #e94560; }
+.cell.o                     { color: #4fc3f7; }
+
+/* Pop animation triggered when a symbol is placed */
+.cell.placed {
+  animation: pop-in 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Winning cells */
+.cell.winner {
+  background: #0f3460;
+  border-color: #f5c518;
+  animation: winner-glow 1s ease-in-out infinite;
+}
